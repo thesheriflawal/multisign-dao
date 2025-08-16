@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-import "./Factory.sol";
+// import "./Factory.sol";
 
-contract Factory is MultisigDao {
-  address[] admins;
-  uint[] passedProposals;
-  uint[] failedProposals;
+contract MultisigDao {
 
-  
+  address[3] admins;
+  // uint[] passedProposals;
+  // uint[] failedProposals;
 
   address owner;
 
@@ -19,8 +18,9 @@ contract Factory is MultisigDao {
   uint required;
 
   struct Proposal {
-    address user;
-    string proposal_details;
+    uint256 id;
+    address proposer;
+    string description;
     Status status;
   }
 
@@ -54,7 +54,8 @@ contract Factory is MultisigDao {
   function addToExecuted(uint proposalId) external {
     require(this.isConfirmed(proposalId), "You need more confirmations");
 
-    Proposal
+    Proposal storage _prop = proposals[proposalId];
+
   }
 
 }
