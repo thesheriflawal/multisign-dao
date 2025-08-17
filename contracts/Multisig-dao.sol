@@ -6,8 +6,8 @@ pragma solidity ^0.8.28;
 contract MultisigDao {
 
   address[3] admins;
-  // uint[] passedProposals;
-  // uint[] failedProposals;
+  uint[] passedProposals;
+  uint[] failedProposals;
 
   address owner;
 
@@ -30,32 +30,53 @@ contract MultisigDao {
     EXECUTED
   }
 
-  mapping(uint => Proposal) proposals;
+  modifier onlyAdmin() {
+    require(isAdmin(msg.sender), "Only admins can call this function");
+    _;
+  }
+
+  modifier onlyMember() {
+    require(isMember[msg.sender], "Only admins can call this function");
+    _;
+  }
+
+  mapping(uint => Proposal) public proposals;
+  mapping(address => bool) public members;
   mapping(uint => mapping(address => bool)) confirmations;
 
-  constructor(address[] memory _admins, uint _confirmations, address _owner) {
-    require(_admins.length > 0, "Admins need to be greater than 0");
-    require(_confirmations > 0, "You need the number of confirmation specified");
-    require(_confirmations <= _admins.length, "You signers can't be more than admins");
-
-    owner = _owner;
+  constructor(address[3] memory _admins) {
     admins = _admins;
-    required = _confirmations;
+
+    for(uint256 i = 0; i < 3; i++) {
+      members[_admins[i]] = true;
+    }
   }
 
-  function get_admins() external view returns (address[] memory) {
-    return admins;
+  function joinDAO() external {
+    require(!members[msg.sender], "Already a member");
+    members[msg.sender] = true;
   }
 
-  function get_confirmation() external view returns (uint) {
-    return required;
+  function create_Proposal(
+    string memory description
+  ) external onlyMember {
+    uint256 proposalId = proposalCount;
+
+    Proposal storage newProposal = proposals[proposalId];
+    newProposal.proposer = msg.sender;
+    newProposal.description = _description;
+    newProposal.status = Status.PENDING;
+    newProposal.approvals = 0;
+    newProposal.rejections = 0;
+
+    proposalCount++;
   }
 
-  function addToExecuted(uint proposalId) external {
-    require(this.isConfirmed(proposalId), "You need more confirmations");
-
-    Proposal storage _prop = proposals[proposalId];
-
+  function voteProposal(
+    uint256 _proposalId,
+    bool _approve
+  ) external onlyAdmin {
+    
   }
 
 }
